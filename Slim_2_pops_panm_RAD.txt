@@ -1,0 +1,58 @@
+
+initialize()
+{
+	setSeed(seed);
+	initializeSLiMOptions(nucleotideBased=T);
+	initializeAncestralNucleotides(randomNucleotides((nbLocus*100)+1));
+	initializeMutationTypeNuc("m1", 0.5, "f", 0.0);
+	initializeGenomicElementType("g1", m1, 1.0, mmJukesCantor(5e-8));
+	for (i in 0:(nbLocus-1))
+		initializeGenomicElement(g1, i*100, (i*100)+99);
+		rates=c(1e-9, 0.5);
+		list_ends=c(99,100);
+		while(size(list_ends)<(nbLocus*2))
+		{
+ 		 next_end=c(list_ends[size(list_ends)-2]+100, list_ends[size(list_ends)-1]+100);
+		 next_rates=c(1e-9, 0.5);
+   		list_ends=c(list_ends, next_end);
+		rates=c(rates, next_rates);
+		}
+	initializeRecombinationRate(rates, list_ends);
+}
+1 early() { 
+
+// ajout de deux sous populations
+
+	sim.addSubpop("p1", 2000);
+	sim.addSubpop("p2", 1000);
+
+// definition de l origine et taux d immigration pour chaque sous population
+
+	p1.setMigrationRates(p2, 0.001);
+	p2.setMigrationRates(p1, 0.001);
+	
+
+
+ }
+
+// 20000 generations d'évolution
+
+
+
+20000 late() { 
+
+Individualsp1 = p1.individuals;
+sampledIndividualsp1 = sample(Individualsp1, Np1);
+
+
+Individualsp2 = p2.individuals;
+sampledIndividualsp2 = sample(Individualsp2, Np2);
+
+allsampledIndividuals = c(sampledIndividualsp1, sampledIndividualsp2);
+
+
+allsampledIndividuals.genomes.outputVCF(simplifyNucleotides=T);
+
+// echantillonner en vcf normal voir manuel page 803
+
+}
